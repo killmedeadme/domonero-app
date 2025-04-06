@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドウモネロボ - 善行習慣化アプリ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f5f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #1d1d1f;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 90%;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1d1d1f;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .robot-container {
+            position: relative;
+            height: 260px;
+            margin: 40px 0;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 12px 24px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.95) transparent transparent;
+        }
+
+        .speech-bubble.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        .robot {
+            position: relative;
+            width: 200px;
+            height: 260px;
+            margin: 0 auto;
+            transition: all 0.5s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .head {
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            animation: headTilt 8s ease-in-out infinite;
+        }
+
+        @keyframes headTilt {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .eye {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            top: 30px;
+            animation: blink 4s infinite;
+        }
+
+        @keyframes blink {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: black;
+            border-radius: 50%;
+            top: 5px;
+            left: 5px;
+            animation: lookAround 8s infinite;
+        }
+
+        @keyframes lookAround {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -2px); }
+            75% { transform: translate(-2px, 2px); }
+        }
+
+        .eye-left {
+            left: 25px;
+        }
+
+        .eye-right {
+            right: 25px;
+        }
+
+        .mouth {
+            position: absolute;
+            width: 30px;
+            height: 5px;
+            background-color: black;
+            border-radius: 5px;
+            bottom: 25px;
+            left: 35px;
+            transition: all 0.3s ease;
+            animation: mouthMove 8s infinite;
+        }
+
+        @keyframes mouthMove {
+            0%, 100% { transform: scaleX(1); }
+            50% { transform: scaleX(1.2); }
+        }
+
+        .body {
+            width: 120px;
+            height: 80px;
+            background-color: #3498db;
+            border-radius: 10px;
+            margin: 5px auto;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .arm {
+            width: 15px;
+            height: 40px;
+            background-color: #3498db;
+            border-radius: 5px;
+            position: absolute;
+            top: 0;
+            transition: all 0.3s ease;
+        }
+
+        .arm-left {
+            left: -20px;
+            transform-origin: top center;
+            animation: armWaveLeft 4s infinite;
+        }
+
+        .arm-right {
+            right: -20px;
+            transform-origin: top center;
+            animation: armWaveRight 4s infinite;
+        }
+
+        @keyframes armWaveLeft {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        @keyframes armWaveRight {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-15deg); }
+        }
+
+        .leg {
+            width: 15px;
+            height: 30px;
+            background-color: #3498db;
+            border-radius: 5px;
+            position: absolute;
+            bottom: -35px;
+        }
+
+        .leg-left {
+            left: 30px;
+        }
+
+        .leg-right {
+            right: 30px;
+        }
+
+        .mission-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 0 auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .mission-title {
+            color: #86868b;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mission-text {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            line-height: 1.4;
+        }
+
+        .btn {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 980px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 30px 0;
+            width: 80%;
+            max-width: 300px;
+            letter-spacing: -0.2px;
+        }
+
+        .btn:hover {
+            background-color: #0077ed;
+            transform: scale(1.02);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .counter {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 20px 0;
+            color: #86868b;
+        }
+
+        #log-button {
+            background-color: transparent;
+            color: #0071e3;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+
+        #log-button:hover {
+            color: #0077ed;
+        }
+
+        .log-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            max-height: 400px;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .log-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .log-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            gap: 8px;
+        }
+
+        .log-header h2 {
+            color: #1d1d1f;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .log-header-icon {
+            font-size: 1.5rem;
+            color: #0071e3;
+        }
+
+        .log-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .log-item {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            color: #1d1d1f;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-item-icon {
+            color: #0071e3;
+            font-size: 1.2rem;
+        }
+
+        /* アニメーション用クラス */
+        .happy-robot .head,
+        .happy-robot .body,
+        .happy-robot .arm,
+        .happy-robot .leg {
+            background-color: #f1c40f;
+        }
+
+        .happy-robot .arm-left {
+            transform: rotate(45deg);
+        }
+
+        .happy-robot .arm-right {
+            transform: rotate(-45deg);
+        }
+
+        .happy-robot .mouth {
+            height: 20px;
+            width: 40px;
+            border-radius: 0 0 20px 20px;
+            background-color: transparent;
+            border: 3px solid black;
+            border-top: none;
+            bottom: 20px;
+            left: 30px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .thanks-message {
+            font-size: 2.5rem;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .show-thanks {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ドウモネロボと善行習慣</h1>
+
+        <div class="robot-container">
+            <div class="speech-bubble" id="speech-bubble">ドウモネ！</div>
+            <div class="robot" id="robot">
+                <div class="head">
+                    <div class="eye eye-left"></div>
+                    <div class="eye eye-right"></div>
+                    <div class="mouth"></div>
+                </div>
+                <div class="body">
+                    <div class="arm arm-left"></div>
+                    <div class="arm arm-right"></div>
+                    <div class="leg leg-left"></div>
+                    <div class="leg leg-right"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mission-card">
+            <h3 class="mission-title">今日のミッション</h3>
+            <p class="mission-text" id="mission">ミッションを読み込み中...</p>
+        </div>
+
+        <button class="btn" id="complete-btn">ミッション完了！</button>
+        <button id="log-button">過去の善行を見る</button>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="thanks-message">ドウモネ！</div>
+        <div class="log-container" id="log-container" style="display: none;">
+            <div class="log-header">
+                <span class="log-header-icon">📝</span>
+                <h2>過去の善行</h2>
+            </div>
+            <ul class="log-list" id="log-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // 善行のリスト（カテゴリ分け）
+        const missions = {
+            "日常": [
+                "ゴミを一つ拾う",
+                "笑顔であいさつをする",
+                "使わない電気を消す",
+                "歩道で道を譲る",
+                "地元のお店で買い物をする",
+                "公共の場を少しきれいにする",
+                "エレベーターで「お先にどうぞ」と言う",
+                "電車で席を譲る",
+                "傘を差して歩く人に配慮する",
+                "エスカレーターで片側を空ける",
+                "ドアを後ろの人に開けておく",
+                "落ちているものを拾って届ける",
+                "困っている人に声をかける",
+                "家族の荷物を持つ",
+                "友達の話をよく聞く",
+                "「お疲れ様です」と声をかける",
+                "「ありがとう」と伝える",
+                "「おはよう」と元気に挨拶する",
+                "「お疲れ様」と声をかける",
+                "「お先に失礼します」と挨拶する"
+            ],
+            "感謝": [
+                "誰かに感謝の言葉を伝える",
+                "家族に「ありがとう」を言う",
+                "友達にメッセージを送る",
+                "誰かを褒める",
+                "小さな親切をする",
+                "先生に感謝の気持ちを伝える",
+                "同僚の仕事を手伝う",
+                "家族の料理を褒める",
+                "友達の頑張りを認める",
+                "近所の人に挨拶をする",
+                "友達の良いところを伝える",
+                "家族の気遣いに感謝する",
+                "友達の相談に乗る",
+                "家族の手伝いをする",
+                "友達の成功を祝う",
+                "家族の話を聞く",
+                "友達の気持ちに共感する",
+                "家族の気持ちを理解する",
+                "友達の悩みを聞く",
+                "家族の気持ちを大切にする"
+            ],
+            "自己啓発": [
+                "植物に水をあげる",
+                "深呼吸をして、今この瞬間に感謝する",
+                "不要なものを寄付する",
+                "10分間瞑想する",
+                "新しいことに挑戦する",
+                "本を一冊読む",
+                "運動を30分する",
+                "日記を書く",
+                "目標を立てる",
+                "新しい趣味を始める",
+                "朝日を浴びる",
+                "深呼吸を3回する",
+                "ストレッチをする",
+                "水を一杯飲む",
+                "窓を開けて換気する",
+                "姿勢を正す",
+                "笑顔を作る",
+                "深呼吸をする",
+                "肩の力を抜く",
+                "目を閉じて休める"
+            ],
+            "環境": [
+                "リサイクルを心がける",
+                "水を節約する",
+                "エコバッグを使う",
+                "公共交通機関を利用する",
+                "地産地消を心がける",
+                "省エネを意識する",
+                "プラスチックの使用を減らす",
+                "緑を育てる",
+                "環境に優しい商品を選ぶ",
+                "環境問題について学ぶ",
+                "ゴミを分別する",
+                "使わない電気を消す",
+                "水を出しっぱなしにしない",
+                "エアコンの温度を適切に設定する",
+                "窓を開けて換気する",
+                "不要なものを捨てる",
+                "リサイクルボックスを使う",
+                "エコ商品を選ぶ",
+                "省エネ製品を使う",
+                "環境に優しい行動を心がける"
+            ]
+        };
+
+        // DOM要素の取得
+        const missionElement = document.getElementById('mission');
+        const completeButton = document.getElementById('complete-btn');
+        const robot = document.getElementById('robot');
+        const overlay = document.getElementById('overlay');
+        const logButton = document.getElementById('log-button');
+        const logContainer = document.getElementById('log-container');
+        const logList = document.getElementById('log-list');
+        const speechBubble = document.getElementById('speech-bubble');
+
+        // 吹き出しメッセージの配列
+        const speechMessages = [
+            "ドウモネ！",
+            "ワルインネ！",
+            "スマンネ！",
+            "ホントニドウモネ！"
+        ];
+
+        // ランダムなメッセージを取得する関数
+        const getRandomMessage = () => {
+            return speechMessages[Math.floor(Math.random() * speechMessages.length)];
+        };
+
+        // カウンターの初期値（保存されていれば取得）
+        let completedCount = parseInt(localStorage.getItem('completedCount') || 0);
+        const updateCounter = () => {
+            speechBubble.textContent = `合計達成数: ${completedCount}`;
+            speechBubble.classList.add('show');
+        };
+        updateCounter();
+
+        // クリアした善行のリスト（過去ログ）
+        let completedDeeds = JSON.parse(localStorage.getItem('completedDeeds') || '[]');
+
+        // 初期ミッションの設定
+        const setNewMission = () => {
+            const categories = Object.keys(missions);
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            const randomMission = missions[randomCategory][Math.floor(Math.random() * missions[randomCategory].length)];
+            missionElement.textContent = randomMission;
+        };
+        setNewMission();
+
+        // ミッション完了ボタンのイベントリスナー
+        completeButton.addEventListener('click', () => {
+            // カウントを増やして保存
+            completedCount++;
+            localStorage.setItem('completedCount', completedCount);
+
+            // クリアした善行をリストに追加
+            completedDeeds.push(missionElement.textContent);
+            localStorage.setItem('completedDeeds', JSON.stringify(completedDeeds));
+
+            // ロボットの喜びアニメーション
+            robot.classList.add('happy-robot');
+            
+            // お礼メッセージを表示
+            speechBubble.textContent = getRandomMessage();
+            speechBubble.classList.add('show');
+
+            // 即座に新しいミッションを設定
+            setNewMission();
+
+            // 3秒後にリセットして合計達成数を表示
+            setTimeout(() => {
+                robot.classList.remove('happy-robot');
+                updateCounter();
+            }, 3000);
+        });
+
+        // 過去ログを表示する関数
+        const displayCompletedDeeds = () => {
+            logList.innerHTML = ''; // 過去ログをクリア
+            if (completedDeeds.length === 0) {
+                logList.innerHTML = '<li class="log-item">まだ善行を達成していません。</li>';
+            } else {
+                completedDeeds.forEach(deed => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'log-item';
+                    listItem.innerHTML = `
+                        <span class="log-item-icon">✨</span>
+                        <span>${deed}</span>
+                    `;
+                    logList.appendChild(listItem);
+                });
+            }
+            logContainer.style.display = 'block'; // 過去ログを表示
+            overlay.classList.add('show-thanks');
+        };
+
+        // 過去ログ表示ボタンのイベントリスナー
+        logButton.addEventListener('click', displayCompletedDeeds);
+
+        // オーバーレイをクリックしたら過去ログを非表示にする
+        overlay.addEventListener('click', (event) => {
+          if (event.target === overlay) {
+            logContainer.style.display = 'none';
+            overlay.classList.remove('show-thanks');
+          }
+        });
+    </script>
+</body>
+</html>
