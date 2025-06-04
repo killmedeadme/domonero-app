@@ -203,6 +203,37 @@
             50% { transform: rotate(-15deg); }
         }
 
+        /* 追加の複雑なアニメーション */
+        @keyframes dance {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-10px, -10px) rotate(-10deg); }
+            40% { transform: translate(10px, -10px) rotate(10deg); }
+            60% { transform: translate(-10px, 0) rotate(-10deg); }
+            80% { transform: translate(10px, 0) rotate(10deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        @keyframes armWaveLeftComplex {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(45deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-20deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes armWaveRightComplex {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-45deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(20deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes legBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
         .leg {
             width: 15px;
             height: 30px;
@@ -371,6 +402,10 @@
         }
 
         /* アニメーション用クラス */
+        .happy-robot {
+            animation: dance 1.2s linear infinite;
+        }
+
         .happy-robot .head,
         .happy-robot .body,
         .happy-robot .arm,
@@ -379,11 +414,15 @@
         }
 
         .happy-robot .arm-left {
-            transform: rotate(45deg);
+            animation: armWaveLeftComplex 1.2s infinite;
         }
 
         .happy-robot .arm-right {
-            transform: rotate(-45deg);
+            animation: armWaveRightComplex 1.2s infinite;
+        }
+
+        .happy-robot .leg {
+            animation: legBounce 0.6s infinite;
         }
 
         .happy-robot .mouth {
