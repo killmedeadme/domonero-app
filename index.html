@@ -586,9 +586,17 @@
 
         // カウンターの初期値（保存されていれば取得）
         let completedCount = parseInt(localStorage.getItem('completedCount') || 0);
-        const updateCounter = () => {
-            speechBubble.textContent = `合計達成数: ${completedCount}`;
+        const showSpeech = (text) => {
+            speechBubble.textContent = text;
             speechBubble.classList.add('show');
+            clearTimeout(showSpeech.timeoutId);
+            showSpeech.timeoutId = setTimeout(() => {
+                speechBubble.classList.remove('show');
+            }, 3000);
+        };
+
+        const updateCounter = () => {
+            showSpeech(`合計達成数: ${completedCount}`);
         };
         updateCounter();
 
@@ -618,8 +626,7 @@
             robot.classList.add('happy-robot');
             
             // お礼メッセージを表示
-            speechBubble.textContent = getRandomMessage();
-            speechBubble.classList.add('show');
+            showSpeech(getRandomMessage());
 
             // 即座に新しいミッションを設定
             setNewMission();
